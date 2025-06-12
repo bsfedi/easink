@@ -13,7 +13,6 @@ class User(BaseModel):
     email: EmailStr
     password: Optional[str]
     created_on: Optional[date]
-    img_url: Optional[str] = None
     verified_email: Optional[bool] = False
     invitation_status: Optional[str] = "Pending"
     role: str
@@ -23,7 +22,6 @@ class Edit_user(BaseModel):
     first_name: str
     last_name: str
     password: str
-    img_url: Optional[str] = None
 
 
 class User_password(BaseModel):

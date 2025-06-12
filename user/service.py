@@ -24,7 +24,6 @@ def get_user_by_role(role):
             continue  # Skip users with expired invitation_status
         user["_id"] = str(user["_id"])
         # bindata = base64.b64encode(user["img_url"]).decode("utf-8")
-        user["img_url"] = ""
         user["item_first_name"] = user["first_name"] 
         user["item_last_name"] = user["last_name"] 
         all_users.append(user)
@@ -39,9 +38,7 @@ def signup(user):
     new_user = dict(user)
     # Check if the email belongs to an admin and send a request email to the admin
 
-    with open("C:/Users/fedi/Desktop/Easink/user/avatar.png", "rb") as f:
-        img_data = f.read()
-    new_user["img_url"] = bson.binary.Binary(img_data)
+
     response = db["users"].insert_one(new_user)
     if response:
         return {

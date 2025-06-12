@@ -374,7 +374,6 @@ async def edit_user(
     user_id,
     first_name: str = Form(...),
     last_name: str = Form(...),
-    img_url: Optional[UploadFile] = File(None),
     remove_img: bool = Form(...),
     token: dict = Depends(token_required),
 ):
@@ -391,22 +390,9 @@ async def edit_user(
     """
     user = get_user_by_id(user_id)
 
-    # Check if the img_url variable is None
-    if img_url is None:
-        # Set the img_url to an empty string or any default value you want
-        if remove_img == True:
-            with open("C:/Users/fedi/Desktop/Easink/user/avatar.png", "rb") as f:
-                img_data = f.read()
-            img_url = bson.binary.Binary(img_data)
-        else:
-            image_data = base64.b64decode(user["img_url"])
-            img_url = Binary(image_data, subtype=0)
-    else:
-        # Read the contents of the uploaded image file as bytes
-        image_bytes = await img_url.read()
-        img_url = image_bytes
 
-    user = {"first_name": first_name, "last_name": last_name, "img_url": img_url}
+
+    user = {"first_name": first_name, "last_name": last_name}
     result = updat_user(user_id, user)
     updated_user = get_user_by_id(user_id)
     return {"message": "user updated successfully", "user": updated_user}
@@ -537,7 +523,6 @@ async def auth_google_callback(request: Request):
                     "email":new_user.email,
                     "password":"",
                     "created_on":now,
-                    "img_url":new_user.picture,
                     "provider":"google",
                     "verified_email":True,
                     "invitation_status":"Accepted",
