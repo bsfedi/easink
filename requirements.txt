@@ -22,7 +22,8 @@ starlette==0.26.1
 typing_extensions==4.5.0
 urllib3==1.26.15
 uvicorn==0.21.1
-psycopg2
+psycopg2-binary==2.9.10
+
 pydantic[email]
 pydantic[dotenv]
 pydantic-settings
