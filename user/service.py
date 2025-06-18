@@ -69,6 +69,19 @@ def signup(user):
                     "user": saved_user,
                 }
     
+def send_new_otp(email):
+    user= db["users"].find_one({"email": email})
+    print(user)
+    otp = generate_otp()  # Assuming you have a function to generate OTP
+    current_time = datetime.now()
+    db["users"].update_one(
+                        {'email': user["email"]},
+                            {'$set': {'otp': {'value': otp, 'time': current_time, 'is_used': False}}},
+                            upsert=True
+                        )
+    send_verify_email(user["email"], user["prenom"],otp)
+    saved_user = serialize_user(user)
+    return saved_user
 
 def verify_otp(email,otp):
     # Create a new dictionary to store the user data
@@ -90,7 +103,11 @@ def verify_otp(email,otp):
                 raise HTTPException(
                             status_code=400, detail="OTP has expired or already used"
                         )
+        else:
 
+            raise HTTPException(
+                            status_code=400, detail="OTP is incorrect"
+                        )
 
     else:
         raise HTTPException(

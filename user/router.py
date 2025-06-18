@@ -68,6 +68,16 @@ async def verifyotp(verifyotp: verifyotp):
 
 
 @user_router.post(
+    "/auth/send_otp"
+)
+async def verifyotp(verifyotp: User_email):
+
+
+    return  send_new_otp(verifyotp.email)
+
+
+
+@user_router.post(
     "/auth/login",
     responses={
         **bad_request,
@@ -101,7 +111,9 @@ async def login_api(userr: User_login):
 
     # verify the password hash
     verify_password(user.get("password"), userr.password)
-
+    if user['otp']['is_used'] == False:
+        send_new_otp(userr.email)
+        return {"user": user}
     # Create an access token with user ID
     token = create_access_token({"id": str(user["_id"])})
     await heavy_data_processing({"message":token})
