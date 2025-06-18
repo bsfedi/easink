@@ -174,9 +174,12 @@ def invite_new_user(user, admin_name):
 def get_user_by_email(email):
     # Query the database to find a user by email
     user = db["users"].find_one(dict(email=email))
-    saved_user = serialize_user(user)
-    # Return the user object if found, or None if not found
-    return saved_user
+    if user:
+        saved_user = serialize_user(user)
+        # Return the user object if found, or None if not found
+        return saved_user
+    else:
+        raise HTTPException(status_code=404, detail="User with this email does not exist") 
 
 
 def verify_account(user_id):

@@ -111,7 +111,7 @@ async def login_api(userr: User_login):
 
     # verify the password hash
     verify_password(user.get("password"), userr.password)
-    if user['otp']['is_used'] == False:
+    if user['verified_email'] == False:
         send_new_otp(userr.email)
         return {"user": user}
     # Create an access token with user ID
