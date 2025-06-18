@@ -14,4 +14,5 @@ class Artiste(BaseModel):
     ville: Optional[str]
     rate: Optional[str]
     images: Optional[list]
-    next_availability: Optional[str] 
+    tags: Optional[list]
+    next_availability: Optional[date] 
