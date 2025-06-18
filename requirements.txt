@@ -49,4 +49,3 @@ ujson==5.10.0
 urllib3==1.26.15
 uvicorn==0.21.1
 watchfiles==1.0.4
-websockets==15.0.1

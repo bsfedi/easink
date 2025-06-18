@@ -175,19 +175,73 @@ def send_email(receiver,first_name,admin_name,id_user):
     except Exception as e :
         return False
     
-def send_verify_email(receiver,first_name,id_user):
+def send_verify_email(receiver,first_name,otp):
     subject = "Verify your email address to activate your account"
-    first_name=first_name[0].upper()  + first_name[1:]
+
     HTMLPart = f"""
-            <img src="{setting.EMAIL_URL}assets/Easink.png" alt="" width="205" height="61" /> <br /> \
-            Dear <b>{first_name}</b>,<br>\
-            Thank you for signing up for Easink. To activate your account, we require you to verify your email address by clicking the verification link below: <br> \
-            <a href='{setting.EMAIL_URL}auth/verifyemail/{id_user}'>Verification Link</a>.<br>            
-            If you did not sign up for Easink, please ignore this email.<br> \
-            If you have any questions or concerns, please do not hesitate to contact our customer support team at contact@easink.app <br> \
-            Thank you for choosing Easink AI. We look forward to providing you with a great user experience. <br> \
-            Best regards, <br> \
-            Easink Team"""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>OTP Verification</title>
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
+                        <tr>
+                            <td align="center">
+                                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center;">
+                                    
+                                    <!-- Logo -->
+                                    <!-- Email Title -->
+                                    <tr>
+                                        <td align="left" style="padding: 15px ;">
+                                            <h2 style="color: #333;">Verify your email address to activate your account </h2>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Greeting -->
+                                    <tr>
+                                        <td align="left" style="padding: 10px 20px;">
+                                            <p style="font-size: 16px; color: #333;"><strong>Hi {first_name} ,</strong></p>
+                                            <p style="font-size: 16px; color: #333;">Your one-time password (OPT) for Easink is</p>
+                                        </td>
+                                    </tr>
+    
+                                <!-- OTP Code 
+                                <tr> 
+                                <td>         Your one-time password (OTP) for AirBroker is: </td>
+                                    </tr> -->
+                                    <tr>
+                            
+                                        <td align="center" style="padding: 10px 0;">
+                                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                                <tr>
+                                                    {''.join(f'<td style=" margin:2px ; display: inline-block; padding: 15px; font-size: 24px; width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 5px; background-color: #f4f4f4;">{digit}</td>' for digit in str(otp))}
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                    <!-- OTP Expiration Message  -->
+                                    <tr>
+                                        <td align="left" style="padding: 10px 20px;">
+                                            <p style="font-size: 16px; color: #333;">This link will expire in <strong>5 minutes</strong>.  PLease do not share it with anyone</p>
+                                        </td>
+                                    </tr> 
+
+
+
+
+
+
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+                """
 
     try : 
         sender_address = gmail_user

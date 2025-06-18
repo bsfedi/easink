@@ -9,10 +9,14 @@ import re
 import requests
 import bson.binary
 import pymongo
+from utilities import *
+import random
+from secuirty import *
 
 ph = argon2.PasswordHasher()
 
-
+def generate_otp():
+    return str(random.randint(1000, 9999))
 
 def get_user_by_role(role):
     all_users = []
@@ -20,8 +24,7 @@ def get_user_by_role(role):
 
     for user in users:
         # Check if invitation_status is present and expired
-        if "invitation_status" in user and user["invitation_status"] == "Expired" or user["invitation_status"] == "Pending":
-            continue  # Skip users with expired invitation_status
+
         user["_id"] = str(user["_id"])
         # bindata = base64.b64encode(user["img_url"]).decode("utf-8")
         user["item_first_name"] = user["first_name"] 
@@ -32,20 +35,67 @@ def get_user_by_role(role):
 
 
 
+def serialize_user(user):
+    """Convert MongoDB ObjectId to string."""
+    user['_id'] = str(user['_id'])
+    return user
 
 def signup(user):
     # Create a new dictionary to store the user data
     new_user = dict(user)
-    # Check if the email belongs to an admin and send a request email to the admin
 
+
+    # Check if email address is already in use
+    if db["users"].find_one({"email": new_user["email"]}):
+        raise HTTPException(status_code=409, detail="Email address already in use")
 
     response = db["users"].insert_one(new_user)
+    otp = generate_otp()  # Assuming you have a function to generate OTP
+    current_time = datetime.now()
+    db["users"].update_one(
+                        {'email': new_user["email"]},
+                            {'$set': {'otp': {'value': otp, 'time': current_time, 'is_used': False}}},
+                            upsert=True
+                        )
+    send_verify_email(new_user["email"], new_user["prenom"],otp)
+    inserted_id = response.inserted_id
+    saved_user = db["users"].find_one({"_id": inserted_id})
+    if saved_user:
+
+        saved_user = serialize_user(saved_user)
     if response:
         return {
                     "message": "User added successfully !",
-                    "user_id": response.inserted_id,
+                    "user": saved_user,
                 }
+    
 
+def verify_otp(email,otp):
+    # Create a new dictionary to store the user data
+    user = db["users"].find_one({'email': email})
+    if user :
+        if user['otp']['value'] == otp:
+            otp_created_at = user['otp']['time']
+            current_time = datetime.now()
+            time_difference = current_time - otp_created_at
+            if time_difference.total_seconds() <= 1500 and not user['otp']['is_used']:
+                db["users"].update_one({'email': email}, {'$set': {'verified_email': True,  "otp.is_used": True}})
+                token = create_access_token({"id": str(user["_id"])})
+                saved_user = db["users"].find_one({'email': email})
+                saved_user = serialize_user(saved_user)
+
+                return {"user":saved_user, "token":token}
+
+            else:
+                raise HTTPException(
+                            status_code=400, detail="OTP has expired or already used"
+                        )
+
+
+    else:
+        raise HTTPException(
+                    status_code=400, detail="Please verify your email and try again!"
+                )
 
 def update_user_access(usecase_id, user_id):
     try:
@@ -107,8 +157,9 @@ def invite_new_user(user, admin_name):
 def get_user_by_email(email):
     # Query the database to find a user by email
     user = db["users"].find_one(dict(email=email))
+    saved_user = serialize_user(user)
     # Return the user object if found, or None if not found
-    return user
+    return saved_user
 
 
 def verify_account(user_id):

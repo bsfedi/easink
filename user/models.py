@@ -14,7 +14,6 @@ class User(BaseModel):
     password: Optional[str]
     created_on: Optional[date]
     verified_email: Optional[bool] = False
-    invitation_status: Optional[str] = "Pending"
     role: str
 
 
@@ -23,6 +22,10 @@ class Edit_user(BaseModel):
     last_name: str
     password: str
 
+
+class verifyotp(BaseModel):
+    otp: str
+    email: EmailStr
 
 class User_password(BaseModel):
     password: str

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import uvicorn 
 from fastapi.middleware.cors import CORSMiddleware
 from user.router import user_router
+from artistes.router import artistes_router
 from config import Settings
 from utilities import *
 
@@ -19,6 +20,8 @@ logger = logging.getLogger("FastAPI app")
 setting =Settings()
 
 app.include_router(user_router)
+
+app.include_router(artistes_router)
 
 from fastapi import WebSocket
 

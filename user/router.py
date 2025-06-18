@@ -47,23 +47,23 @@ async def sign_up(user: User):
     """
     # Get date of today
     now = datetime.now()
-    pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,}$"
-    if re.match(pattern, user.password):
+
         # hash a passsword
-        hashed_password = ph.hash(user.password)
-        user.created_on = now
-        user.password = hashed_password
+    hashed_password = ph.hash(user.password)
+    user.created_on = now
+    user.password = hashed_password
 
-        user_id = signup(user)
-        send_verify_email(user.email, user.prenom, user_id["user_id"])
-        return {"message": "user added succesfully !"}
-    else:
-        raise HTTPException(
-            status_code=411,
-            detail="Password format is invalid. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
-        )
+    user = signup(user)
+    return  user
 
 
+@user_router.post(
+    "/auth/verifyotp"
+)
+async def verifyotp(verifyotp: verifyotp):
+
+
+    return  verify_otp(verifyotp.email,verifyotp.otp)
 
 
 
@@ -98,22 +98,15 @@ async def login_api(userr: User_login):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Check if user's email is verified
-    if not user["verified_email"] or user.get("password") == "":
-        raise HTTPException(
-            status_code=406, detail="Please verify your email and try again!"
-        )
 
     # verify the password hash
     verify_password(user.get("password"), userr.password)
 
-    # Check if user accepet the invitation
-    if user["invitation_status"] == "Expired":
-        raise HTTPException(status_code=424, detail="Invitation Expired !")
     # Create an access token with user ID
     token = create_access_token({"id": str(user["_id"])})
     await heavy_data_processing({"message":token})
 
-    return {"user": user["email"], "token": token}
+    return {"user": user, "token": token}
 
 
 @user_router.post(
@@ -184,8 +177,6 @@ async def set_password(user_password: User_password, user_id):
 
     hashed_password = ph.hash(user_password.password)
     user = get_user_by_id(user_id)
-    if user.get("invitation_status") == "Expired":
-        raise HTTPException(status_code=424, detail="Invitation Expired !")
     if user.get("password") == None:
         # Accept the invitation if password is not set
         accept_invitation(user_id)
@@ -305,7 +296,6 @@ async def invite_user(user: User, token: dict = Depends(token_required)):
     now = datetime.now()  # Get the current timestamp
     user.created_on = now  # Set the created_on field of the user object
     user.verified_email = False
-    user.invitation_status = "Pending"
     new_user = get_user_by_id(token["id"])
     admin_name = new_user["first_name"]  # Get the first name of the admin user
     invite_new_user(user, admin_name)
@@ -525,7 +515,6 @@ async def auth_google_callback(request: Request):
                     "created_on":now,
                     "provider":"google",
                     "verified_email":True,
-                    "invitation_status":"Accepted",
                     "role":"client"
 
 
