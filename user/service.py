@@ -203,11 +203,6 @@ def get_user_by_id(uid):
 
     # Convert ObjectId fields to string in the user dictionary
     user = {i: str(user[i]) if isinstance(user[i], ObjectId) else user[i] for i in user}
-    if user["img_url"] is not None:
-        # If the user's img_url field is not None, encode it as base64
-        # before returning it in the user dictionary
-        bindata = base64.b64encode(user["img_url"]).decode("utf-8")
-        user["img_url"] = ""
 
     # Return the user dictionary
     return user

@@ -151,14 +151,14 @@ async def reset_password(user: User_email):
         raise HTTPException(status_code=404, detail="user does not exist!")
 
     receiver = user["email"]
-    first_name = user["first_name"]
+    first_name = user["prenom"]
     id_user = str(user["_id"])
     # Send password reset email
-    sended = send_restepassword_email(receiver, first_name, id_user)
+    sended = send_new_otp(receiver)
     if not sended:
         raise HTTPException(status_code=421, detail="fail to send the email")
 
-    return {"message": "please check your email !"}  # Return success message
+    return {"user":user}  # Return success message
 
 
 @user_router.put(
@@ -182,9 +182,7 @@ async def set_password(user_password: User_password, user_id):
     Returns:
         pymongo.results.UpdateResult: The result of the update operation.
     """
-    pattern = (
-        r"^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\[\]{};':\"\\\\|,.<>\\/?]).{8,}$"
-    )
+
     # Hash the password
 
     hashed_password = ph.hash(user_password.password)
@@ -194,14 +192,10 @@ async def set_password(user_password: User_password, user_id):
         accept_invitation(user_id)
 
     # Update the password in the database
-    if re.match(pattern, user_password.password):
-        update_password(user_id, hashed_password)
-        return {"message": "password updated successfully !"}
-    else:
-        raise HTTPException(
-            status_code=411,
-            detail="Password format is invalid. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
-        )
+
+    update_password(user_id, hashed_password)
+    return {"message": "password updated successfully !","user": user}
+
 
 
 @user_router.get(
