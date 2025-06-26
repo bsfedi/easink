@@ -182,6 +182,17 @@ def get_user_by_email(email):
         raise HTTPException(status_code=404, detail="User with this email does not exist") 
 
 
+def get_user_by_email_for_google(email):
+    # Query the database to find a user by email
+    user = db["users"].find_one(dict(email=email))
+    if user:
+        saved_user = serialize_user(user)
+        # Return the user object if found, or None if not found
+        return saved_user
+    else:
+        return None  # Return None if no user is found with the given email
+
+
 def verify_account(user_id):
     # Update the account verification status for the user with the given user_id
     # to mark it as verified

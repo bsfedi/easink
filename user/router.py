@@ -461,7 +461,7 @@ from typing import Optional
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "29892117963-hrcit8lmdr856quhb7pkp1q4mhkh7iod.apps.googleusercontent.com")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "8jc-jIC-ZMfvXD-CGcng5gfE")
 # This should be your application's base URL + the callback route
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5001/auth/google/callback")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://easink.onrender.com/auth/google/callback")
 
 
 # Initialize the Google SSO helper
@@ -504,18 +504,22 @@ async def auth_google_callback(request: Request):
         async with google_sso:
             # Get the user info from Google
             new_user = await google_sso.verify_and_process(request)
-            
+            print(new_user)
+            if not new_user:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Could not retrieve user information from Google"
+                )
 
-            user = get_user_by_email(new_user.email)
+            user = get_user_by_email_for_google(new_user.email)
             if user :
                 token = create_access_token({"id": str(user["_id"])})
-                return {"user": user["email"], "token": token}
+                return {"user": user, "token": token}
             else:
-
+                
                 now = datetime.now()
                 user_infor = {
                     "prenom":new_user.first_name,
-
                     "email":new_user.email,
                     "password":"",
                     "created_on":now,
@@ -528,9 +532,10 @@ async def auth_google_callback(request: Request):
 
                 }
                 response = signup(user_infor)
-                token = create_access_token({"id": str(response["user_id"])})
-                # Rest of your code...
-                return {"message": "user added succesfully !" , "token": token}
+                print(response)
+                token = create_access_token({"id": str(response['user']['_id'] )})
+
+                return {"user": response['user'],"token":token}
 
     except Exception as e:
         raise HTTPException(
