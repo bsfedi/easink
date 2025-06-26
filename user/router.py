@@ -604,7 +604,10 @@ async def auth_google_callback(request: Request):
             <html><body><script>
                 const data = {data_json};
                 window.opener.postMessage(data, "http://localhost:5173");
-                window.close();
+        setTimeout(() => {{
+            window.close();
+        }}, 3000);
+                
             </script></body></html>
             """
 
