@@ -605,7 +605,7 @@ async def auth_google_callback(request: Request):
             <body>
                 <script>
                 const data = {data_json};
-                window.opener.postMessage(data, "http://localhost:5173");
+                window.opener.postMessage(data, "https://tatouage-dev.netlify.app/");
                 setTimeout(() => {{
                     window.close();
                 }}, 100);
