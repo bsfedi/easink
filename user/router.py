@@ -463,6 +463,8 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "8jc-jIC-ZMfvXD-CG
 # This should be your application's base URL + the callback route
 REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://easink.onrender.com/auth/google/callback")
 
+# REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5001/auth/google/callback")
+
 
 # Initialize the Google SSO helper
 google_sso = GoogleSSO(
@@ -497,14 +499,66 @@ async def login_google():
         # Redirects the user to the Google login page
         return await google_sso.get_login_redirect()
 
-@user_router.get("/auth/google/callback")
+# @user_router.get("/auth/google/callback")
+# async def auth_google_callback(request: Request):
+#     """Handles the Google OAuth callback after user authentication"""
+#     try:
+#         async with google_sso:
+#             # Get the user info from Google
+#             new_user = await google_sso.verify_and_process(request)
+#             print(new_user)
+#             if not new_user:
+#                 raise HTTPException(
+#                     status_code=status.HTTP_400_BAD_REQUEST,
+#                     detail="Could not retrieve user information from Google"
+#                 )
+
+#             user = get_user_by_email_for_google(new_user.email)
+#             if user :
+#                 token = create_access_token({"id": str(user["_id"])})
+#                 return {"user": user, "token": token}
+#             else:
+                
+#                 now = datetime.now()
+#                 user_infor = {
+#                     "prenom":new_user.first_name,
+#                     "email":new_user.email,
+#                     "password":"",
+#                     "created_on":now,
+#                     "provider":"google",
+#                     "verified_email":True,
+#                     "role":"client"
+
+
+
+
+#                 }
+#                 response = signup(user_infor)
+#                 print(response)
+#                 token = create_access_token({"id": str(response['user']['_id'] )})
+
+#                 return {"user": response['user'],"token":token}
+
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=f"Could not validate Google credentials: {str(e)}"
+#         )
+# # Example protected route using a simple bearer token
+# # In a real application, you would implement proper JWT validation
+
+
+from fastapi.responses import HTMLResponse
+from fastapi import Request, status, HTTPException
+from datetime import datetime
+
+@user_router.get("/auth/google/callback", response_class=HTMLResponse)
 async def auth_google_callback(request: Request):
-    """Handles the Google OAuth callback after user authentication"""
+    """Handles the Google OAuth callback and returns a JS script to postMessage the token to frontend"""
     try:
         async with google_sso:
-            # Get the user info from Google
             new_user = await google_sso.verify_and_process(request)
-            print(new_user)
+
             if not new_user:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -512,38 +566,41 @@ async def auth_google_callback(request: Request):
                 )
 
             user = get_user_by_email_for_google(new_user.email)
-            if user :
+            if user:
                 token = create_access_token({"id": str(user["_id"])})
-                return {"user": user, "token": token}
             else:
-                
                 now = datetime.now()
                 user_infor = {
-                    "prenom":new_user.first_name,
-                    "email":new_user.email,
-                    "password":"",
-                    "created_on":now,
-                    "provider":"google",
-                    "verified_email":True,
-                    "role":"client"
-
-
-
-
+                    "prenom": new_user.first_name,
+                    "email": new_user.email,
+                    "password": "",
+                    "created_on": now,
+                    "provider": "google",
+                    "verified_email": True,
+                    "role": "client"
                 }
                 response = signup(user_infor)
-                print(response)
-                token = create_access_token({"id": str(response['user']['_id'] )})
+                user = response['user']
+                token = create_access_token({"id": str(user["_id"])})
 
-                return {"user": response['user'],"token":token}
+            # Build the JS to send back to the opener
+            html_content = f"""
+            <html><body><script>
+                const data = {{"success": true, "user": {user}, "token": "{token}"}};
+                window.opener.postMessage(data, "http://localhost:5173");
+                window.close();
+            </script></body></html>
+            """
+
+            return HTMLResponse(content=html_content)
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Could not validate Google credentials: {str(e)}"
         )
-# Example protected route using a simple bearer token
-# In a real application, you would implement proper JWT validation
+
+
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl="auth/google/login",
     tokenUrl="auth/google/callback"
