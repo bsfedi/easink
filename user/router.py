@@ -461,7 +461,7 @@ from typing import Optional
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "29892117963-hrcit8lmdr856quhb7pkp1q4mhkh7iod.apps.googleusercontent.com")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "8jc-jIC-ZMfvXD-CGcng5gfE")
 # This should be your application's base URL + the callback route
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5001/auth/google/callback")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://easink.onrender.com/auth/google/callback")
 
 
 # Initialize the Google SSO helper
