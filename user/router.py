@@ -461,9 +461,9 @@ from typing import Optional
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "29892117963-hrcit8lmdr856quhb7pkp1q4mhkh7iod.apps.googleusercontent.com")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "8jc-jIC-ZMfvXD-CGcng5gfE")
 # This should be your application's base URL + the callback route
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://easink.onrender.com/auth/google/callback")
+# REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://easink.onrender.com/auth/google/callback")
 
-# REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5001/auth/google/callback")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5001/auth/google/callback")
 
 
 # Initialize the Google SSO helper
@@ -551,10 +551,18 @@ async def login_google():
 from fastapi.responses import HTMLResponse
 from fastapi import Request, status, HTTPException
 from datetime import datetime
+from fastapi.responses import HTMLResponse
+import json
+from datetime import datetime
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default (like datetime)"""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError("Type not serializable")
 
 @user_router.get("/auth/google/callback", response_class=HTMLResponse)
 async def auth_google_callback(request: Request):
-    """Handles the Google OAuth callback and returns a JS script to postMessage the token to frontend"""
     try:
         async with google_sso:
             new_user = await google_sso.verify_and_process(request)
@@ -580,13 +588,21 @@ async def auth_google_callback(request: Request):
                     "role": "client"
                 }
                 response = signup(user_infor)
-                user = response['user']
+                user = response["user"]
                 token = create_access_token({"id": str(user["_id"])})
 
-            # Build the JS to send back to the opener
+            data = {
+                "success": True,
+                "user": user,
+                "token": token
+            }
+
+            # Serialize Python object to JSON string (with datetime handling)
+            data_json = json.dumps(data, default=json_serial)
+
             html_content = f"""
             <html><body><script>
-                const data = {{"success": true, "user": {user}, "token": "{token}"}};
+                const data = {data_json};
                 window.opener.postMessage(data, "http://localhost:5173");
                 window.close();
             </script></body></html>
