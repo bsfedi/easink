@@ -579,7 +579,7 @@ async def auth_google_callback(request: Request):
             else:
                 now = datetime.now()
                 user_infor = {
-                    "prenom": new_user.first_name,
+                    "prenom": new_user.display_name,
                     "email": new_user.email,
                     "password": "",
                     "created_on": now,
