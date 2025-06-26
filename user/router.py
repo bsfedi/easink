@@ -601,15 +601,19 @@ async def auth_google_callback(request: Request):
             data_json = json.dumps(data, default=json_serial)
 
             html_content = f"""
-            <html><body><script>
+            <html>
+            <body>
+                <script>
                 const data = {data_json};
                 window.opener.postMessage(data, "http://localhost:5173");
-        setTimeout(() => {{
-            window.close();
-        }}, 3000);
-                
-            </script></body></html>
+                setTimeout(() => {{
+                    window.close();
+                }}, 100);
+                </script>
+            </body>
+            </html>
             """
+
 
             return HTMLResponse(content=html_content)
 
