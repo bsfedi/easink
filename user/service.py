@@ -57,7 +57,8 @@ def signup(user):
                             {'$set': {'otp': {'value': otp, 'time': current_time, 'is_used': False}}},
                             upsert=True
                         )
-    send_verify_email(new_user["email"], new_user["prenom"],otp)
+    if "provider" not in new_user:
+        send_verify_email(new_user["email"], new_user["prenom"],otp)
     inserted_id = response.inserted_id
     saved_user = db["users"].find_one({"_id": inserted_id})
     if saved_user:
