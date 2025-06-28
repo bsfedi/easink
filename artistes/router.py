@@ -14,6 +14,16 @@ async def create(artiste: Artiste):
 async def read_all():
     return get_artistes()
 
+
+
+@artistes_router.get("/artistes/category/")
+async def read_all_by_category():
+    return get_artistes_by_category()
+
+
+
+
+
 @artistes_router.get("/artistes/{id}")
 async def read_one(id: str):
     artiste = get_artiste(id)

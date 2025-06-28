@@ -49,7 +49,7 @@ def artiste_helper(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "category": artiste.get("category"),
+        # "category": artiste.get("category"),
         "shops": shops,
         "tatouages": tatouages,
         "rate": artiste.get("rate"),
@@ -57,6 +57,8 @@ def artiste_helper(artiste) -> dict:
         "tags": artiste.get("tags"),
         "next_availability": artiste.get("next_availability"),
     }
+
+
 from datetime import datetime, date
 
 def create_artiste(artiste: Artiste):
@@ -84,6 +86,24 @@ def get_artiste(id: str):
     artiste =  artiste_collection.find_one({"_id": ObjectId(id)})
     if artiste:
         return artiste_helper(artiste)
+
+
+def get_artistes_by_category():
+    # Fetch artists by category
+    nouveaux = artiste_collection.find({"category": "nouveaux"})
+    coups_coeur = artiste_collection.find({"category": "coups_coeur"})
+    populaires = artiste_collection.find({"category": "populaires"})
+
+    # Helper to format all artists in a cursor
+    def format_artistes(cursor):
+        return [artiste_helper(a) for a in cursor]
+
+    return {
+        "nouveaux": format_artistes(nouveaux),
+        "coups_coeur": format_artistes(coups_coeur),
+        "populaires": format_artistes(populaires)
+    }
+
 
 def update_artiste(id: str, data: dict):
     if len(data) < 1:
