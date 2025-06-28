@@ -10,9 +10,9 @@ from enum import Enum
 class Artiste(BaseModel):
     # id:str
     name: str
-    studio: str
-    ville: Optional[str]
+    shops: Optional[list]
     rate: Optional[str]
-    images: Optional[list]
+    tatouages: Optional[list]
+    flashs: Optional[list]
     tags: Optional[list]
     next_availability: Optional[date] 

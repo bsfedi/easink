@@ -3,6 +3,8 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from user.router import user_router
 from artistes.router import artistes_router
+from shop.router import shop_router
+from flash_tatouages.router import flash_tatouages_router
 from config import Settings
 from utilities import *
 
@@ -22,6 +24,8 @@ setting =Settings()
 app.include_router(user_router)
 
 app.include_router(artistes_router)
+app.include_router(shop_router)
+app.include_router(flash_tatouages_router)
 
 from fastapi import WebSocket
 

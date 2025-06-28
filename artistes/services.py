@@ -3,16 +3,57 @@ from database import db
 from artistes.models import *
 
 artiste_collection = db.artistes
+artiste_collection = db.artistes
+flashs_collection = db.flash_tatouages
+shops_collection = db.shops
+tatouages_collection = db.tatouages  # Make sure this matches your real collection name
+
+
+
+def get_flashs_by_ids(ids):
+    return [
+        {
+            "id": str(f["_id"]),
+            "image": f["image"],
+            "type": f.get("type")
+        }
+        for f in flashs_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
+    ]
+
+def get_shops_by_ids(ids):
+    return [
+        {
+            "id": str(s["_id"]),
+            "name": s["name"],
+            "ville": s.get("ville")
+        }
+        for s in shops_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
+    ]
+
+def get_tatouages_by_ids(ids):
+    return [
+        {
+            "id": str(t["_id"]),
+            "image": t.get("image"),
+            "type": t.get("type")
+        }
+        for t in flashs_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
+    ]
+
 
 def artiste_helper(artiste) -> dict:
+    flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
+    shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
+    tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
+
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "studio": artiste["studio"],
-        "ville": artiste.get("ville"),
+        "shops": shops,
+        "tatouages": tatouages,
         "rate": artiste.get("rate"),
-        "images": artiste.get("images"),
-        "tags":artiste.get("tags"),
+        "flashs": flashs,
+        "tags": artiste.get("tags"),
         "next_availability": artiste.get("next_availability"),
     }
 from datetime import datetime, date
