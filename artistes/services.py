@@ -25,7 +25,7 @@ def get_shops_by_ids(ids):
         {
             "id": str(s["_id"]),
             "name": s["name"],
-            "ville": s.get("ville")
+            "ville": s.get("city")
         }
         for s in shops_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
     ]
@@ -49,6 +49,7 @@ def artiste_helper(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
+        "category": artiste.get("category"),
         "shops": shops,
         "tatouages": tatouages,
         "rate": artiste.get("rate"),

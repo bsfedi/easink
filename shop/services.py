@@ -8,6 +8,7 @@ def shop_helper(shop) -> dict:
     return {
         "id": str(shop["_id"]),
         "name": shop["name"],
+        "city": shop.get("city", "").lower(),  # Normalize city to lowercase
         "lat": shop["lat"],
         "lng": shop.get("lng"),
         "images": shop.get("images")
