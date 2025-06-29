@@ -25,7 +25,9 @@ def get_shops_by_ids(ids):
         {
             "id": str(s["_id"]),
             "name": s["name"],
-            "ville": s.get("city")
+            "ville": s.get("city"),
+            "lat": s.get("lat"),
+            "lng": s.get("lng")
         }
         for s in shops_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
     ]
@@ -56,6 +58,7 @@ def artiste_helper(artiste) -> dict:
         "description": artiste.get("description"),
         "informations": artiste.get("informations"),
         "avis": artiste.get("avis"),
+        "avatar": artiste.get("avatar"),
         "questions": artiste.get("questions"),
         "flashs": flashs,
         "tags": artiste.get("tags"),
@@ -113,7 +116,7 @@ def get_artistes_by_category():
             "type": item["type"],
             "image": item.get("image"),
             "name": item.get("name"),  # Assuming you have a name field
-"artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,            # Add more fields if needed, like "image", "description", etc.
+            "artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,            # Add more fields if needed, like "image", "description", etc.
         }
 
     return {
