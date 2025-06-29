@@ -53,6 +53,10 @@ def artiste_helper(artiste) -> dict:
         "shops": shops,
         "tatouages": tatouages,
         "rate": artiste.get("rate"),
+        "description": artiste.get("description"),
+        "informations": artiste.get("informations"),
+        "avis": artiste.get("avis"),
+        "questions": artiste.get("questions"),
         "flashs": flashs,
         "tags": artiste.get("tags"),
         "next_availability": artiste.get("next_availability"),
@@ -98,10 +102,26 @@ def get_artistes_by_category():
     def format_artistes(cursor):
         return [artiste_helper(a) for a in cursor]
 
+    # Fetch 5 flashs and 5 tatouages from db.flash_tatouages
+    flashs = db.flash_tatouages.find({"type": "flash"}).limit(5)
+    tatouages = db.flash_tatouages.find({"type": "tatouage"}).limit(5)
+
+    # Format flashs and tatouages (assuming you need only selected fields or convert ObjectId)
+    def format_flash_tatouage(item):
+        return {
+            "id": str(item["_id"]),
+            "type": item["type"],
+            "image": item.get("image"),
+            "name": item.get("name"),  # Assuming you have a name field
+"artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,            # Add more fields if needed, like "image", "description", etc.
+        }
+
     return {
         "nouveaux": format_artistes(nouveaux),
         "coups_coeur": format_artistes(coups_coeur),
-        "populaires": format_artistes(populaires)
+        "populaires": format_artistes(populaires),
+        "flashs": [format_flash_tatouage(f) for f in flashs],
+        "tatouages": [format_flash_tatouage(t) for t in tatouages],
     }
 
 
