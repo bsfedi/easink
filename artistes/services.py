@@ -15,7 +15,9 @@ def get_flashs_by_ids(ids):
         {
             "id": str(f["_id"]),
             "image": f["image"],
-            "type": f.get("type")
+            "type": f.get("type"),
+             "tags": f.get("tags", []),
+                "description": f.get("description")
         }
         for f in flashs_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
     ]
@@ -33,20 +35,26 @@ def get_shops_by_ids(ids):
     ]
 
 def get_tatouages_by_ids(ids):
-    return [
-        {
+    print(ids)
+    tatouages_map = {
+        str(t["_id"]): {
             "id": str(t["_id"]),
             "image": t.get("image"),
-            "type": t.get("type")
+            "type": t.get("type"),
+            "tags": t.get("tags", []),
+            "description": t.get("description")
         }
         for t in flashs_collection.find({"_id": {"$in": [ObjectId(i) for i in ids]}})
-    ]
+    }
+
+    return [tatouages_map.get(i) for i in ids if tatouages_map.get(i)]
 
 
 def artiste_helper(artiste) -> dict:
     flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
+    print(tatouages)
 
     return {
         "id": str(artiste["_id"]),

@@ -26,6 +26,7 @@ def flash_tatouages_helper(flash_tatouages) -> dict:
         "id": str(flash_tatouages["_id"]),
         "image": flash_tatouages["image"],
         "type": flash_tatouages.get("type"),
+        "description": flash_tatouages.get("description"),
         "tags": flash_tatouages.get("tags", []),
         "artiste": get_artiste_by_id(flash_tatouages["artiste"]) if flash_tatouages.get("artiste") else None,
         "shop": get_shop_by_id(flash_tatouages["shop"]) if flash_tatouages.get("shop") else None

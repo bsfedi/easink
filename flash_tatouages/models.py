@@ -14,5 +14,6 @@ class flash_tatouages(BaseModel):
     image: Optional[str]
     artiste: Optional[str]
     tags : Optional[list]
+    description:Optional[str]
     type: Optional[str]
 
