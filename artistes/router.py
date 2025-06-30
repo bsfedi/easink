@@ -4,6 +4,9 @@ from artistes.services import *
 from fastapi import APIRouter, HTTPException, Depends, Form, UploadFile, File
 from fastapi import  Query
 from typing import List, Optional
+from secuirty import *
+from utilities import *
+
 artistes_router = APIRouter(tags=["Artistes"])
 
 @artistes_router.post("/artistes/")
@@ -15,6 +18,17 @@ async def read_all():
     return get_artistes()
 
 
+@artistes_router.post("/fav_artiste/")
+async def create_fav_artiste(favorite_artiste: favorite_artiste,token: dict = Depends(token_required)):
+    return fav_artiste(favorite_artiste.artiste_id,token['id'] , favorite_artiste.favorite)
+
+
+
+
+
+@artistes_router.get("/get_fav_artistes/")
+async def read_all_fav_artistes(token: dict = Depends(token_required)):
+    return get_fav_artistes(token['id'])
 
 @artistes_router.get("/artistes/category/")
 async def read_all_by_category():
@@ -55,3 +69,6 @@ async def filter_artistes(
     tags: Optional[List[str]] = Query(None)
 ):
     return get_filtered_artistes(name, ville, next_availability, tags)
+
+
+

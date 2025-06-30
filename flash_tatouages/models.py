@@ -29,3 +29,24 @@ class Reserver_flash(BaseModel):
     heure: Optional[str] = None
     shop_id: Optional[str] = None
     status: Optional[str] = "en attente"
+
+class Project_flash(BaseModel):
+    id: str
+    image: Optional[str]
+    type: Optional[str]
+    description: Optional[str]
+    prix: Optional[float]
+    tags: Optional[list] = []
+    artiste: Optional[str] = None
+    shop: Optional[str] = None
+
+class favorite_flash(BaseModel):
+    favorite: bool = True
+    flash_id: str
+
+
+class favorite_tato(BaseModel):
+    favorite: bool = True
+    tato_id: str
+
+    

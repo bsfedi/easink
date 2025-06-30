@@ -63,7 +63,6 @@ async def reserve_flash_tatouages(reserver_flash: Reserver_flash,token: dict = D
 @flash_tatouages_router.get("/flash_reservations/")
 async def get_reserve_flash_tatouages(token: dict = Depends(token_required)):
 
-    
     flash_tatouages = get_reserver_falsh(token["id"])
     if flash_tatouages:
         return {"message": "Flash tatouage reserved successfully", "flash_tatouages": flash_tatouages}
@@ -72,3 +71,27 @@ async def get_reserve_flash_tatouages(token: dict = Depends(token_required)):
 
 
 
+@flash_tatouages_router.post("/fav_flash/")
+async def create_fav_flash(favorite_flash: favorite_flash,token: dict = Depends(token_required)):
+    return fav_flash(favorite_flash.flash_id,token['id'] , favorite_flash.favorite)
+
+
+
+
+
+@flash_tatouages_router.get("/get_fav_falshs/")
+async def read_all_fav_artistes(token: dict = Depends(token_required)):
+    return get_fav_flashs(token['id'])
+
+
+@flash_tatouages_router.post("/fav_tato/")
+async def create_fav_flash(favorite_tato: favorite_tato,token: dict = Depends(token_required)):
+    return fav_tato(favorite_tato.tato_id,token['id'] , favorite_tato.favorite)
+
+
+
+
+
+@flash_tatouages_router.get("/get_fav_tatos/")
+async def read_all_fav_artistes(token: dict = Depends(token_required)):
+    return get_fav_tatos(token['id'])

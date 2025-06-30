@@ -5,6 +5,7 @@ from artistes.models import *
 artiste_collection = db.artistes
 artiste_collection = db.artistes
 flashs_collection = db.flash_tatouages
+fav_artiste_collection = db.fav_artistes  # Adjust this to match your actual collection name
 shops_collection = db.shops
 tatouages_collection = db.tatouages  # Make sure this matches your real collection name
 
@@ -217,6 +218,31 @@ def update_artiste(id: str, data: dict):
 def delete_artiste(id: str):
     result =  artiste_collection.delete_one({"_id": ObjectId(id)})
     return result.deleted_count > 0
+
+
+def fav_artiste(artiste_id, user_id, favorite):
+    # Update if exists, otherwise insert
+    result = fav_artiste_collection.update_one(
+        {"user_id": user_id, "artiste_id": artiste_id},
+        {"$set": {"favorite": favorite}},
+        upsert=True
+    )
+
+    if result.matched_count > 0:
+        return {"message": "Favorite status updated"}
+    else:
+        return {"message": "Artiste added to favorites"}
+    
+def get_fav_artistes(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_artistes = []
+    fav_artistes = fav_artiste_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_artistes:
+        all_fav_artistes.append(fav["artiste_id"])
+
+    # Convert to a list of dictionaries
+    return all_fav_artistes
+
 
 
 from datetime import datetime, timedelta

@@ -4,7 +4,8 @@ from flash_tatouages.models import *
 from datetime import datetime
 
 flash_tatouages_collection = db.flash_tatouages
-
+fav_flash_collection = db.fav_flash  # Adjust this to match your actual collection name
+fav_tatouage_collection = db.fav_tatouage  # Adjust this to match your actual collection
 reserver_flash_tatouages = db.reservation_flash  # Adjust this to match your actual collection name
 artistes_collection = db.artistes  # Adjust this to match your actual collection name
 shops_collection = db.shops        # Adjust this to match your actual collection name
@@ -14,6 +15,11 @@ def get_artiste_by_id(artiste_id: str):
     if artiste:
         artiste["id"] = str(artiste["_id"])
         del artiste["_id"]
+        del artiste["avis"]  # Remove password if it exists
+        del artiste["questions"]  # Remove password if it exists
+        del artiste["flashs"]
+        del artiste["tatouages"]
+
     return artiste
 
 def get_shop_by_id(shop_id: str):
@@ -31,7 +37,9 @@ def flash_tatouages_helper(flash_tatouages) -> dict:
         "description": flash_tatouages.get("description"),
         "prix": flash_tatouages.get("prix"),
         "tags": flash_tatouages.get("tags", []),
-        "artiste": get_artiste_by_id(flash_tatouages["artiste"]) if flash_tatouages.get("artiste") else None,
+        "artiste_name": get_artiste_by_id(flash_tatouages["artiste"])['name'],
+        "artiste_id": get_artiste_by_id(flash_tatouages["artiste"])['id'],
+        "artistes_shops": [get_shop_by_id(shop_id) for shop_id in get_artiste_by_id(flash_tatouages["artiste"])['shops']],
         "shop": get_shop_by_id(flash_tatouages["shop"]) if flash_tatouages.get("shop") else None
     }
 
@@ -123,3 +131,51 @@ def get_reserver_falsh(user_id):
     for r_flash in reserver_flash_tatouages.find({"user_id": user_id}):
         reserver_falshs.append(flash_reservation_helper(r_flash))
     return reserver_falshs
+
+
+def fav_flash(flash_id, user_id, favorite):
+    # Update if exists, otherwise insert
+    result = fav_flash_collection.update_one(
+        {"user_id": user_id, "flash_id": flash_id},
+        {"$set": {"favorite": favorite}},
+        upsert=True
+    )
+
+    if result.matched_count > 0:
+        return {"message": "Favorite status updated"}
+    else:
+        return {"message": "flash added to favorites"}
+    
+def get_fav_flashs(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_flash = []
+    fav_flashs = fav_flash_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_flashs:
+        all_fav_flash.append(fav["flash_id"])
+
+    # Convert to a list of dictionaries
+    return all_fav_flash
+
+
+def fav_tato(tato_id, user_id, favorite):
+    # Update if exists, otherwise insert
+    result = fav_tatouage_collection.update_one(
+        {"user_id": user_id, "tato_id": tato_id},
+        {"$set": {"favorite": favorite}},
+        upsert=True
+    )
+
+    if result.matched_count > 0:
+        return {"message": "Favorite status updated"}
+    else:
+        return {"message": "tato added to favorites"}
+    
+def get_fav_tatos(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_tato = []
+    fav_tatos = fav_tatouage_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_tatos:
+        all_fav_tato.append(fav["tato_id"])
+
+    # Convert to a list of dictionaries
+    return all_fav_tato

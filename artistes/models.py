@@ -20,4 +20,9 @@ class Artiste(BaseModel):
     sub_tags :Optional[list]
     flashs: Optional[list]
     tags: Optional[list]
-    next_availability: Optional[date] 
+    next_availability: Optional[date]
+
+
+class favorite_artiste(BaseModel):
+    favorite: bool = True
+    artiste_id: str
