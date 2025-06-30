@@ -14,6 +14,7 @@ class flash_tatouages(BaseModel):
     image: Optional[str]
     artiste: Optional[str]
     tags : Optional[list]
+    category: Optional[str] 
     description:Optional[str]
     type: Optional[str]
-
+    prix : Optional[float]

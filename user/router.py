@@ -368,9 +368,7 @@ async def delete_user(user_id: str, token: dict = Depends(token_required)):
 )
 async def edit_user(
     user_id,
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    remove_img: bool = Form(...),
+    edit_user :Edit_user,
     token: dict = Depends(token_required),
 ):
     """
@@ -388,7 +386,7 @@ async def edit_user(
 
 
 
-    user = {"first_name": first_name, "last_name": last_name}
+    user = {"prenom": edit_user.prenom}
     result = updat_user(user_id, user)
     updated_user = get_user_by_id(user_id)
     return {"message": "user updated successfully", "user": updated_user}

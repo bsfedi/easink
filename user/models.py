@@ -18,9 +18,8 @@ class User(BaseModel):
 
 
 class Edit_user(BaseModel):
-    first_name: str
-    last_name: str
-    password: str
+    prenom: str
+
 
 
 class verifyotp(BaseModel):

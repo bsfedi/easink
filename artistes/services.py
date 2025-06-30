@@ -16,6 +16,7 @@ def get_flashs_by_ids(ids):
             "id": str(f["_id"]),
             "image": f["image"],
             "type": f.get("type"),
+           "prix": f.get("prix"),
              "tags": f.get("tags", []),
                 "description": f.get("description")
         }
@@ -26,6 +27,7 @@ def get_shops_by_ids(ids):
     return [
         {
             "id": str(s["_id"]),
+                "images": s.get("images", []),
             "name": s["name"],
             "ville": s.get("city"),
             "lat": s.get("lat"),
@@ -39,6 +41,7 @@ def get_tatouages_by_ids(ids):
     tatouages_map = {
         str(t["_id"]): {
             "id": str(t["_id"]),
+               "prix": t.get("prix"),
             "image": t.get("image"),
             "type": t.get("type"),
             "tags": t.get("tags", []),
@@ -50,16 +53,51 @@ def get_tatouages_by_ids(ids):
     return [tatouages_map.get(i) for i in ids if tatouages_map.get(i)]
 
 
+from datetime import datetime
+
+def format_next_availability(next_avail_raw):
+    try:
+        # 🧠 Vérifie si c'est déjà un objet datetime (comme retourné par PyMongo parfois)
+        if isinstance(next_avail_raw, datetime):
+            next_avail = next_avail_raw
+        # 📦 Sinon, c'est probablement un dictionnaire avec "$date"
+        elif isinstance(next_avail_raw, dict) and "$date" in next_avail_raw:
+            date_str = next_avail_raw["$date"].split('.')[0]
+            next_avail = datetime.fromisoformat(date_str.replace("Z", ""))
+        else:
+            return "Non renseignée"
+
+        today = datetime.today().date()
+        avail_date = next_avail.date()
+        delta = (avail_date - today).days
+
+        if delta == 0:
+            return "Aujourd'hui"
+        elif delta == 1:
+            return "Demain"
+        elif 2 <= delta <= 6 and avail_date.isocalendar()[1] == today.isocalendar()[1]:
+            return "Cette semaine"
+        elif avail_date.month == today.month and avail_date.year == today.year:
+            return "Ce mois"
+        else:
+            return "Le mois prochain"
+    except Exception as e:
+        print("Erreur parsing next_availability:", e)
+        return "Non renseignée"
+
+
+
 def artiste_helper(artiste) -> dict:
     flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
-    print(tatouages)
+
+    formatted_availability = format_next_availability(artiste.get("next_availability"))
+
 
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        # "category": artiste.get("category"),
         "shops": shops,
         "tatouages": tatouages,
         "rate": artiste.get("rate"),
@@ -70,8 +108,9 @@ def artiste_helper(artiste) -> dict:
         "questions": artiste.get("questions"),
         "flashs": flashs,
         "tags": artiste.get("tags"),
-        "next_availability": artiste.get("next_availability"),
+        "next_availability": formatted_availability,
     }
+
 
 
 from datetime import datetime, date

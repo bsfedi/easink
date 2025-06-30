@@ -35,6 +35,12 @@ async def read_by_type(type: str):
         return flash_tatouages
     raise HTTPException(status_code=404, detail="flash_tatouages not found")
 
+
+
+@flash_tatouages_router.get("/flash_tatouages/category/{type}")
+async def read_by_category(type):
+    return get_flash_tatouages_by_category(type)
+
 @flash_tatouages_router.delete("/flash_tatouages/{id}")
 async def delete(id: str):
     deleted = delete_flash_tatouages(id)

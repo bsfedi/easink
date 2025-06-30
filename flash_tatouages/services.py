@@ -27,6 +27,7 @@ def flash_tatouages_helper(flash_tatouages) -> dict:
         "image": flash_tatouages["image"],
         "type": flash_tatouages.get("type"),
         "description": flash_tatouages.get("description"),
+        "prix": flash_tatouages.get("prix"),
         "tags": flash_tatouages.get("tags", []),
         "artiste": get_artiste_by_id(flash_tatouages["artiste"]) if flash_tatouages.get("artiste") else None,
         "shop": get_shop_by_id(flash_tatouages["shop"]) if flash_tatouages.get("shop") else None
@@ -37,6 +38,29 @@ def create_flash_tatouages(flash_tatouages: flash_tatouages):
     result = flash_tatouages_collection.insert_one(flash_tatouages_dict)
     new_flash_tatouages = flash_tatouages_collection.find_one({"_id": result.inserted_id})
     return flash_tatouages_helper(new_flash_tatouages)
+
+
+
+def get_flash_tatouages_by_category(type):
+    # Fetch artists by category
+    nouveaux = flash_tatouages_collection.find({"category": "nouveaux","type": type})
+    coups_coeur = flash_tatouages_collection.find({"category": "coups_coeur","type": type})
+    populaires = flash_tatouages_collection.find({"category": "populaires","type": type})
+
+    # Helper to format all artists in a cursor
+    def format_flash_tatouages(cursor):
+        return [flash_tatouages_helper(a) for a in cursor]
+
+
+
+
+    return {
+        "nouveaux": format_flash_tatouages(nouveaux),
+        "coups_coeur": format_flash_tatouages(coups_coeur),
+        "populaires": format_flash_tatouages(populaires),
+
+    }
+
 
 def get_flash_tatouagess():
     flash_tatouagess = []
