@@ -103,7 +103,7 @@ def artiste_helper(artiste) -> dict:
         "rate": artiste.get("rate"),
         "description": artiste.get("description"),
         "informations": artiste.get("informations"),
-        "avis": artiste.get("avis"),
+        # "avis": artiste.get("avis"),
         "avatar": artiste.get("avatar"),
         "questions": artiste.get("questions"),
         "sub_tags": artiste.get("sub_tags"),
