@@ -4,6 +4,8 @@ from flash_tatouages.services import *
 from fastapi import APIRouter, HTTPException, Depends, Form, UploadFile, File
 from fastapi import  Query
 from typing import List, Optional
+from secuirty import *
+from utilities import *
 flash_tatouages_router = APIRouter(tags=["flash_tatouages"])
 
 @flash_tatouages_router.post("/flash_tatouages/")
@@ -47,5 +49,26 @@ async def delete(id: str):
     if deleted:
         return {"message": "flash_tatouages deleted"}
     raise HTTPException(status_code=404, detail="flash_tatouages not found")
+
+
+@flash_tatouages_router.post("/flash_tatouages/reserve")
+async def reserve_flash_tatouages(reserver_flash: Reserver_flash,token: dict = Depends(token_required)):
+    reserver_flash.user_id =token["id"]
+
+    flash_tatouages = reserver_falsh(reserver_flash)
+    if flash_tatouages:
+        return {"message": "Flash tatouage reserved successfully", "flash_tatouages": flash_tatouages}
+    raise HTTPException(status_code=404, detail="flash tatouage not found")
+
+@flash_tatouages_router.get("/flash_reservations/")
+async def get_reserve_flash_tatouages(token: dict = Depends(token_required)):
+
+    
+    flash_tatouages = get_reserver_falsh(token["id"])
+    if flash_tatouages:
+        return {"message": "Flash tatouage reserved successfully", "flash_tatouages": flash_tatouages}
+    raise HTTPException(status_code=404, detail="flash tatouage not found")
+
+
 
 
