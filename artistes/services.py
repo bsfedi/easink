@@ -88,7 +88,7 @@ def format_next_availability(next_avail_raw):
 
 
 def artiste_helper(artiste) -> dict:
-    flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
+    # flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
 
@@ -98,7 +98,7 @@ def artiste_helper(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "shops": shops,
+        "shops": shops[0],
         "tatouages": tatouages,
         "rate": artiste.get("rate"),
         "description": artiste.get("description"),
@@ -107,7 +107,7 @@ def artiste_helper(artiste) -> dict:
         "avatar": artiste.get("avatar"),
         "questions": artiste.get("questions"),
         "sub_tags": artiste.get("sub_tags"),
-        "flashs": flashs,
+        # "flashs": flashs,
         "tags": artiste.get("tags"),
         "next_availability": formatted_availability,
     }
