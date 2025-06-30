@@ -113,6 +113,31 @@ def artiste_helper(artiste) -> dict:
     }
 
 
+def artiste_helper_by_id(artiste) -> dict:
+    flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
+    shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
+    tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
+
+    formatted_availability = format_next_availability(artiste.get("next_availability"))
+
+
+    return {
+        "id": str(artiste["_id"]),
+        "name": artiste["name"],
+        "shops": shops[0],
+        "tatouages": tatouages,
+        "rate": artiste.get("rate"),
+        "description": artiste.get("description"),
+        "informations": artiste.get("informations"),
+        "avis": artiste.get("avis"),
+        "avatar": artiste.get("avatar"),
+        "questions": artiste.get("questions"),
+        "sub_tags": artiste.get("sub_tags"),
+        "flashs": flashs,
+        "tags": artiste.get("tags"),
+        "next_availability": formatted_availability,
+    }
+
 
 from datetime import datetime, date
 
@@ -140,7 +165,7 @@ def get_artistes():
 def get_artiste(id: str):
     artiste =  artiste_collection.find_one({"_id": ObjectId(id)})
     if artiste:
-        return artiste_helper(artiste)
+        return artiste_helper_by_id(artiste)
 
 
 def get_artistes_by_category():
