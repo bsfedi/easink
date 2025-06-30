@@ -106,6 +106,7 @@ def artiste_helper(artiste) -> dict:
         "avis": artiste.get("avis"),
         "avatar": artiste.get("avatar"),
         "questions": artiste.get("questions"),
+        "sub_tags": artiste.get("sub_tags"),
         "flashs": flashs,
         "tags": artiste.get("tags"),
         "next_availability": formatted_availability,
