@@ -98,7 +98,7 @@ async def create_project(
     emplacement: str = Form(...),
     budget: str = Form(...),
     status: str = Form(...),
-    artiste_id: List[str] = Form(...),
+    artiste_id: str = Form(...),
     token: dict = Depends(token_required)
 ):
     saved_filenames = []
