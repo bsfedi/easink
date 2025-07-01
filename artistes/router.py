@@ -139,3 +139,8 @@ def serialize_project(project):
 @artistes_router.get("/projects/")
 def get_all_projects( token: dict = Depends(token_required)):
     return get_projects(token["id"])
+
+@artistes_router.get("/projects/{id}")
+def get_all_projects( id:str ,token: dict = Depends(token_required)):
+    return get_project_by_id(id)
+

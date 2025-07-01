@@ -178,6 +178,38 @@ def get_projects(user_id: str):
     return {"projects": serialized_projects}
 
 
+
+def get_project_by_id(id: str):
+    project= project_collection.find_one({"_id": ObjectId(id)})
+    print(project)
+
+    base_url = "https://easink.onrender.com/uploads/"
+
+ 
+    project["_id"] = str(project["_id"])
+    project["user_id"] = str(project["user_id"])
+    project["artiste_id"] = str(project.get("artiste_id", ""))
+
+        # Add full image URLs
+    project["images"] = [base_url + img for img in project.get("images", [])]
+
+        # Fetch and attach artiste data
+    if project["artiste_id"]:
+        project["artiste"] = get_artiste(project["artiste_id"])
+       
+        del project["artiste"]["avis"]  # Remove shops if not needed
+        del project["artiste"]["tatouages"]  # Remove tattoos if not needed
+        del project["artiste"]["questions"]  # Remove questions if not needed
+        del project["artiste"]["flashs"]  #
+
+    else:
+        project["artiste"] = None
+
+       
+
+    return {"project": project}
+
+
 from datetime import datetime, date
 
 def create_artiste(artiste: Artiste):
