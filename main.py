@@ -32,7 +32,9 @@ from fastapi import WebSocket
 
 
 
+from fastapi.staticfiles import StaticFiles
 
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 """ allows a server to indicate any origins (domain, scheme, or port) """
 origins = ["*"]

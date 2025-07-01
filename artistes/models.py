@@ -26,3 +26,13 @@ class Artiste(BaseModel):
 class favorite_artiste(BaseModel):
     favorite: bool = True
     artiste_id: str
+
+class Project(BaseModel):
+
+    images: Optional[list]
+    description: str
+    taille: str
+    emplacement: str
+    budget: str
+    status: str
+    artiste_id: str

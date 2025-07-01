@@ -10,6 +10,8 @@ shops_collection = db.shops
 tatouages_collection = db.tatouages  # Make sure this matches your real collection name
 
 
+project_collection = db.projects
+
 
 def get_flashs_by_ids(ids):
     return [
@@ -139,6 +141,36 @@ def artiste_helper_by_id(artiste) -> dict:
         "next_availability": formatted_availability,
     }
 
+# Helper to convert ObjectId to string
+def serialize_project(project):
+    project["_id"] = str(project["_id"])
+    return project
+
+
+def get_projects(user_id: str):
+    projects = list(project_collection.find({"user_id": user_id}))
+    serialized_projects = []
+
+    base_url = "https://easink.onrender.com/uploads/"
+
+    for p in projects:
+        p["_id"] = str(p["_id"])
+        p["user_id"] = str(p["user_id"])
+        p["artiste_id"] = str(p.get("artiste_id", ""))
+
+        # Add full image URLs
+        p["images"] = [base_url + img for img in p.get("images", [])]
+
+        # Fetch and attach artiste data
+        if p["artiste_id"]:
+            p["artiste"] = get_artiste(p["artiste_id"])
+        else:
+            p["artiste"] = None
+
+        serialized_projects.append(p)
+
+    return {"projects": serialized_projects}
+
 
 from datetime import datetime, date
 
@@ -264,6 +296,22 @@ def get_all_fav_artistes(user_id):
 
     # Convert to a list of dictionaries
     return all_fav_artistes
+
+
+
+def create_project(project: Project):
+    project_dict = project.dict()
+    # Normalize fields to lowercase
+    project_dict["name"] = project_dict["name"].lower()
+    if project_dict.get("tags"):
+        project_dict["tags"] = [tag.lower() for tag in project_dict["tags"]]
+    result =  artiste_collection.insert_one(project_dict)
+    new_project =  artiste_collection.find_one({"_id": result.inserted_id})
+    return artiste_helper(new_project)
+
+
+
+
 from datetime import datetime, timedelta
 
 def get_filtered_artistes(name=None, ville=None, next_availability=None, tags=None):

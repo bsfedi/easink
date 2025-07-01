@@ -84,3 +84,58 @@ async def filter_artistes(
 
 
 
+
+import os
+import shutil
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@artistes_router.post("/projects/")
+async def create_project(
+    images: Optional[List[UploadFile]] = File(None),
+    description: str = Form(...),
+    taille: str = Form(...),
+    emplacement: str = Form(...),
+    budget: str = Form(...),
+    status: str = Form(...),
+    artiste_id: List[str] = Form(...),
+    token: dict = Depends(token_required)
+):
+    saved_filenames = []
+
+    if images:
+        for image in images:
+            filename = image.filename
+            filepath = os.path.join(UPLOAD_DIR, filename)
+
+            # If file already exists, you might want to handle conflict
+            with open(filepath, "wb") as f:
+                shutil.copyfileobj(image.file, f)
+
+            saved_filenames.append(filename)
+
+    # Prepare project data
+    project_dict = {
+        "images": saved_filenames,
+        "description": description,
+        "taille": taille,
+        "emplacement": emplacement,
+        "budget": budget,
+        "status": status,
+        "user_id": token["id"],  # Assuming token contains user ID
+        "artiste_id": artiste_id
+    }
+
+    # Insert into MongoDB
+    result = project_collection.insert_one(project_dict)
+    project_dict["_id"] = str(result.inserted_id)
+    return {"message": "Project created successfully", "project": project_dict}
+
+# Helper to convert ObjectId to string
+def serialize_project(project):
+    project["_id"] = str(project["_id"])
+    return project
+
+@artistes_router.get("/projects/")
+def get_all_projects( token: dict = Depends(token_required)):
+    return get_projects(token["id"])
