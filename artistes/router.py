@@ -30,6 +30,18 @@ async def create_fav_artiste(favorite_artiste: favorite_artiste,token: dict = De
 async def read_all_fav_artistes(token: dict = Depends(token_required)):
     return get_fav_artistes(token['id'])
 
+
+
+@artistes_router.get("/all_fav_artistes/")
+async def read_all_fav_artistes(token: dict = Depends(token_required)):
+    return get_all_fav_artistes(token['id'])
+
+
+
+
+
+
+
 @artistes_router.get("/artistes/category/")
 async def read_all_by_category():
     return get_artistes_by_category()

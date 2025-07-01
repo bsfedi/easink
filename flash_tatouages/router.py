@@ -83,6 +83,10 @@ async def create_fav_flash(favorite_flash: favorite_flash,token: dict = Depends(
 async def read_all_fav_artistes(token: dict = Depends(token_required)):
     return get_fav_flashs(token['id'])
 
+@flash_tatouages_router.get("/all_fav_flashs/")
+async def read_all_flashs(token: dict = Depends(token_required)):
+    return get_all_flashs(token['id'])
+
 
 @flash_tatouages_router.post("/fav_tato/")
 async def create_fav_flash(favorite_tato: favorite_tato,token: dict = Depends(token_required)):
@@ -95,3 +99,8 @@ async def create_fav_flash(favorite_tato: favorite_tato,token: dict = Depends(to
 @flash_tatouages_router.get("/get_fav_tatos/")
 async def read_all_fav_artistes(token: dict = Depends(token_required)):
     return get_fav_tatos(token['id'])
+
+
+@flash_tatouages_router.get("/all_fav_tattos/")
+async def read_all_tattos(token: dict = Depends(token_required)):
+    return get_all_tattos(token['id'])

@@ -157,6 +157,17 @@ def get_fav_flashs(user_id):
     return all_fav_flash
 
 
+def get_all_flashs(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_flash = []
+    fav_flashs = fav_flash_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_flashs:
+        all_fav_flash.append(get_flash_tatouages(fav["flash_id"]))
+
+    # Convert to a list of dictionaries
+    return all_fav_flash
+
+
 def fav_tato(tato_id, user_id, favorite):
     # Update if exists, otherwise insert
     result = fav_tatouage_collection.update_one(
@@ -176,6 +187,17 @@ def get_fav_tatos(user_id):
     fav_tatos = fav_tatouage_collection.find({"user_id": user_id, "favorite": True})
     for fav in fav_tatos:
         all_fav_tato.append(fav["tato_id"])
+
+    # Convert to a list of dictionaries
+    return all_fav_tato
+
+
+def get_all_tattos(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_tato = []
+    fav_tatos = fav_tatouage_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_tatos:
+        all_fav_tato.append(get_flash_tatouages(fav["tato_id"]))
 
     # Convert to a list of dictionaries
     return all_fav_tato

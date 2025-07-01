@@ -235,6 +235,17 @@ def fav_artiste(artiste_id, user_id, favorite):
     
 def get_fav_artistes(user_id):
     # Fetch all favorite artistes for the user
+    # Fetch all favorite artistes for the user
+    all_fav_artistes = []
+    fav_artistes = fav_artiste_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_artistes:
+        all_fav_artistes.append(fav["artiste_id"])
+
+    # Convert to a list of dictionaries
+    return all_fav_artistes
+
+def get_all_fav_artistes(user_id):
+    # Fetch all favorite artistes for the user
     all_fav_artistes = []
     fav_artistes = fav_artiste_collection.find({"user_id": user_id, "favorite": True})
     for fav in fav_artistes:
@@ -244,7 +255,15 @@ def get_fav_artistes(user_id):
     return all_fav_artistes
 
 
+def get_all_fav_artistes(user_id):
+    # Fetch all favorite artistes for the user
+    all_fav_artistes = []
+    fav_artistes = fav_artiste_collection.find({"user_id": user_id, "favorite": True})
+    for fav in fav_artistes:
+        all_fav_artistes.append(get_artiste(fav["artiste_id"]))
 
+    # Convert to a list of dictionaries
+    return all_fav_artistes
 from datetime import datetime, timedelta
 
 def get_filtered_artistes(name=None, ville=None, next_availability=None, tags=None):
