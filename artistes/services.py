@@ -164,6 +164,12 @@ def get_projects(user_id: str):
         # Fetch and attach artiste data
         if p["artiste_id"]:
             p["artiste"] = get_artiste(p["artiste_id"])
+       
+            del p["artiste"]["avis"]  # Remove shops if not needed
+            del p["artiste"]["tatouages"]  # Remove tattoos if not needed
+            del p["artiste"]["questions"]  # Remove questions if not needed
+            del p["artiste"]["flashs"]  #
+
         else:
             p["artiste"] = None
 
