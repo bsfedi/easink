@@ -440,7 +440,7 @@ async def updatee_password(
 
     """
     response = update_new_password(
-        user_id, password.old_password, password.new_password
+        user_id, password.new_password
     )
     if response == True:
         return {"message": "Your password changed successfully"}

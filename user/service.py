@@ -390,11 +390,10 @@ def is_email_expired():
     return {"message": "All invitation status changes"}
 
 
-def update_new_password(user_id, old_password, new_password):
+def update_new_password(user_id, new_password):
     user = get_user_by_id(user_id)
     try:
         # Verify old password
-        verify_password(user["password"], old_password)
         # Hash the new password
         hashed_password = ph.hash(new_password)
         # Update the password in the database

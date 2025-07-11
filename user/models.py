@@ -31,7 +31,7 @@ class User_password(BaseModel):
 
 
 class new_password_user(BaseModel):
-    old_password: str
+
     new_password: str
 
 
