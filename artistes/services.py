@@ -91,29 +91,34 @@ def format_next_availability(next_avail_raw):
 
 
 def artiste_helper(artiste) -> dict:
-    # flashs = get_flashs_by_ids(artiste.get("flashs", [])) if artiste.get("flashs") else []
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
-
     formatted_availability = format_next_availability(artiste.get("next_availability"))
 
+    avis = artiste.get("avis", [])
+    
+    # Calcul de la moyenne des notes
+    if avis:
+        total_notes = sum(item.get("avis", 0) for item in avis)
+        moyenne = round(total_notes / len(avis), 2)
+    else:
+        moyenne = None  # ou 0 selon ton besoin
 
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "shops": shops[0],
+        "shops": shops[0] if shops else None,
         "tatouages": tatouages,
-        "rate": artiste.get("rate"),
+        "rate": moyenne,
         "description": artiste.get("description"),
         "informations": artiste.get("informations"),
-        # "avis": artiste.get("avis"),
         "avatar": artiste.get("avatar"),
         "questions": artiste.get("questions"),
         "sub_tags": artiste.get("sub_tags"),
-        # "flashs": flashs,
         "tags": artiste.get("tags"),
         "next_availability": formatted_availability,
     }
+
 
 
 def artiste_helper_by_id(artiste) -> dict:
@@ -177,6 +182,18 @@ def get_projects(user_id: str):
 
     return {"projects": serialized_projects}
 
+
+
+def edit_project_by_id(project_id: str,new_shop_data: dict):
+    try:
+        result = project_collection.update_one(
+            {"_id": ObjectId(project_id)},
+            {"$set": {"new_shop": new_shop_data}}
+        )
+        return result.modified_count > 0
+    except Exception as e:
+        print(f"Error updating project: {e}")
+        return False
 
 
 def get_project_by_id(id: str):
