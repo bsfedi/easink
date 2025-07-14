@@ -127,14 +127,21 @@ def artiste_helper_by_id(artiste) -> dict:
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
 
     formatted_availability = format_next_availability(artiste.get("next_availability"))
-
+    avis = artiste.get("avis", [])
+    
+    # Calcul de la moyenne des notes
+    if avis:
+        total_notes = sum(item.get("avis", 0) for item in avis)
+        moyenne = round(total_notes / len(avis), 2)
+    else:
+        moyenne = None  # ou 0 selon ton besoin
 
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
         "shops": shops[0],
         "tatouages": tatouages,
-        "rate": artiste.get("rate"),
+        "rate": moyenne,
         "description": artiste.get("description"),
         "informations": artiste.get("informations"),
         "avis": artiste.get("avis"),
