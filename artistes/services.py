@@ -261,6 +261,12 @@ def get_artiste(id: str):
     artiste =  artiste_collection.find_one({"_id": ObjectId(id)})
     if artiste:
         return artiste_helper_by_id(artiste)
+    
+
+def get_config_artiste(id: str):
+    artiste =  artiste_collection.find_one({"_id": ObjectId(id)})
+    if artiste:
+        return artiste['configuration']
 
 
 def get_artistes_by_category():

@@ -50,6 +50,13 @@ async def read_all_by_category():
 
 
 
+@artistes_router.get("/artiste_config/{id}")
+async def artiste_config(id: str):
+    artiste = get_config_artiste(id)
+    if artiste:
+        return artiste
+    raise HTTPException(status_code=404, detail="Artiste not found")
+
 @artistes_router.get("/artistes/{id}")
 async def read_one(id: str):
     artiste = get_artiste(id)
