@@ -83,7 +83,7 @@ def format_next_availability(next_avail_raw):
         elif avail_date.month == today.month and avail_date.year == today.year:
             return "Ce mois"
         else:
-            return "Le mois prochain"
+            return "Peu importe"
     except Exception as e:
         print("Erreur parsing next_availability:", e)
         return "Non renseignée"

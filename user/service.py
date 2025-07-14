@@ -92,7 +92,7 @@ def verify_otp(email,otp):
             otp_created_at = user['otp']['time']
             current_time = datetime.now()
             time_difference = current_time - otp_created_at
-            if time_difference.total_seconds() <= 1500 and not user['otp']['is_used']:
+            if time_difference.total_seconds() <= 900 and not user['otp']['is_used']:
                 db["users"].update_one({'email': email}, {'$set': {'verified_email': True,  "otp.is_used": True}})
                 token = create_access_token({"id": str(user["_id"])})
                 saved_user = db["users"].find_one({'email': email})

@@ -226,7 +226,7 @@ def send_verify_email(receiver,first_name,otp):
                                     <!-- OTP Expiration Message  -->
                                     <tr>
                                         <td align="left" style="padding: 10px 20px;">
-                                            <p style="font-size: 16px; color: #333;">This link will expire in <strong>5 minutes</strong>.  PLease do not share it with anyone</p>
+                                            <p style="font-size: 16px; color: #333;">This link will expire in <strong>15 minutes</strong>.  PLease do not share it with anyone</p>
                                         </td>
                                     </tr> 
 
