@@ -35,7 +35,7 @@ def flash_tatouages_helper(flash_tatouages) -> dict:
         "image": flash_tatouages["image"],
         "type": flash_tatouages.get("type"),
         "description": flash_tatouages.get("description"),
-        "prix": flash_tatouages.get("prix"),
+        "prix": flash_tatouages.get("prix") if flash_tatouages.get("prix") else flash_tatouages.get("estimated_price"),
         "tags": flash_tatouages.get("tags", []),
         "artiste_name": get_artiste_by_id(flash_tatouages["artiste"])['name'],
         "artiste_id": get_artiste_by_id(flash_tatouages["artiste"])['id'],
