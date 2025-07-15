@@ -269,28 +269,110 @@ def get_config_artiste(id: str):
         return artiste['configuration']
 
 
-def get_artistes_by_category():
-    # Fetch artists by category
-    nouveaux = artiste_collection.find({"category": "nouveaux"})
-    coups_coeur = artiste_collection.find({"category": "coups_coeur"})
-    populaires = artiste_collection.find({"category": "populaires"})
+# def get_artistes_by_category():
+#     # Fetch artists by category
+#     nouveaux = artiste_collection.find({"category": "nouveaux"})
+#     coups_coeur = artiste_collection.find({"category": "coups_coeur"})
+#     populaires = artiste_collection.find({"category": "populaires"})
 
-    # Helper to format all artists in a cursor
+#     # Helper to format all artists in a cursor
+#     def format_artistes(cursor):
+#         return [artiste_helper(a) for a in cursor]
+
+#     # Fetch 5 flashs and 5 tatouages from db.flash_tatouages
+#     flashs = db.flash_tatouages.find({"type": "flash"}).limit(5)
+#     tatouages = db.flash_tatouages.find({"type": "tatouage"}).limit(5)
+
+#     # Format flashs and tatouages (assuming you need only selected fields or convert ObjectId)
+#     def format_flash_tatouage(item):
+#         return {
+#             "id": str(item["_id"]),
+#             "type": item["type"],
+#             "image": item.get("image"),
+#             "name": item.get("name"),  # Assuming you have a name field
+#             "artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,            # Add more fields if needed, like "image", "description", etc.
+#         }
+
+#     return {
+#         "nouveaux": format_artistes(nouveaux),
+#         "coups_coeur": format_artistes(coups_coeur),
+#         "populaires": format_artistes(populaires),
+#         "flashs": [format_flash_tatouage(f) for f in flashs],
+#         "tatouages": [format_flash_tatouage(t) for t in tatouages],
+#     }
+
+
+from datetime import datetime, timedelta
+
+def get_artistes_by_category():
+    now = datetime.utcnow()
+    last_30_days = now - timedelta(days=30)
+    print(f"Last 30 days: {last_30_days}")
+
+    # Nouveaux : artistes créés dans les 30 derniers jours
+    nouveaux = artiste_collection.find({
+        "created_at": {"$gte": last_30_days}
+    })
+
+    # Pipeline pour trouver les artistes populaires
+    # Étape 1: Compter les réservations par flash_id dans les 30 derniers jours
+    reservation_pipeline = [
+        {"$match": {"date": {"$gte": last_30_days}}},
+        {"$addFields": {
+            "flash_id": {"$toObjectId": "$flash_id"}
+        }},
+        {"$lookup": {
+            "from": "flash_tatouages",
+            "localField": "flash_id",
+            "foreignField": "_id",
+            "as": "flash_info"
+        }},
+        {"$unwind": "$flash_info"},
+        {"$group": {
+            "_id": "$flash_info.artiste",
+            "reservation_count": {"$sum": 1}
+        }},
+        {"$match": {
+            "reservation_count": {"$gte": 1}  # Au moins 10 réservations
+        }}
+    ]
+
+    popular_artistes_data = list(db.reservation_flash.aggregate(reservation_pipeline))
+    
+    # Extraire les IDs des artistes populaires
+    popular_artistes_ids = []
+    for doc in popular_artistes_data:
+        artiste_id = doc["_id"]
+        if isinstance(artiste_id, str):
+            try:
+                popular_artistes_ids.append(ObjectId(artiste_id))
+            except:
+                pass  # Skip invalid ObjectId strings
+        elif isinstance(artiste_id, ObjectId):
+            popular_artistes_ids.append(artiste_id)
+
+    # Récupérer les artistes populaires
+    populaires = list(artiste_collection.find({
+        "_id": {"$in": popular_artistes_ids}
+    }))
+    
+    # Coups de coeur : catégorie attribuée manuellement
+    coups_coeur = artiste_collection.find({"category": "coups_coeur"})
+
     def format_artistes(cursor):
         return [artiste_helper(a) for a in cursor]
 
-    # Fetch 5 flashs and 5 tatouages from db.flash_tatouages
+    # Flashs et tatouages
     flashs = db.flash_tatouages.find({"type": "flash"}).limit(5)
     tatouages = db.flash_tatouages.find({"type": "tatouage"}).limit(5)
 
-    # Format flashs and tatouages (assuming you need only selected fields or convert ObjectId)
     def format_flash_tatouage(item):
         return {
             "id": str(item["_id"]),
             "type": item["type"],
             "image": item.get("image"),
-            "name": item.get("name"),  # Assuming you have a name field
-            "artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,            # Add more fields if needed, like "image", "description", etc.
+            "name": item.get("name"),
+            "artiste": get_artiste(item["artiste"]) if item.get("artiste") else None,
         }
 
     return {
@@ -300,6 +382,7 @@ def get_artistes_by_category():
         "flashs": [format_flash_tatouage(f) for f in flashs],
         "tatouages": [format_flash_tatouage(t) for t in tatouages],
     }
+
 
 
 def update_artiste(id: str, data: dict):
