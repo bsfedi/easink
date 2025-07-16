@@ -129,6 +129,14 @@ async def create_project(
         "emplacement": emplacement,
         "budget": budget,
         "status": status,
+        "estimation":"",
+        "arrhes":0,
+        "date":None,
+
+        "shop":"",
+        "type_validation":"",
+        "time":[],
+
         "status_shop":"waiting for confirmation",
         "user_id": token["id"],  # Assuming token contains user ID
         "artiste_id": artiste_id
