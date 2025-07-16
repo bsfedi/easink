@@ -139,7 +139,7 @@ def artiste_helper_by_id(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "shops": shops[0],
+        "shops": shops,
         "tatouages": tatouages,
         "rate": moyenne,
         "description": artiste.get("description"),
