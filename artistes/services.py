@@ -107,7 +107,7 @@ def artiste_helper(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
-        "shops": shops[0] if shops else None,
+        "shops": shops if shops else None,
         "tatouages": tatouages,
         "rate": moyenne,
         "description": artiste.get("description"),
