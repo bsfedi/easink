@@ -398,6 +398,20 @@ def update_artiste(id: str, data: dict):
             return artiste_helper(new_data)
     return False
 
+
+def update_project_by_id(id: str, data: dict):
+    if len(data) < 1:
+        return False
+    artiste =  project_collection.find_one({"_id": ObjectId(id)})
+    if artiste:
+        updated_artiste =  project_collection.update_one(
+            {"_id": ObjectId(id)}, {"$set": data}
+        )
+        if updated_artiste.modified_count > 0:
+            new_data =  project_collection.find_one({"_id": ObjectId(id)})
+            return artiste_helper(new_data)
+    return False
+
 def delete_artiste(id: str):
     result =  artiste_collection.delete_one({"_id": ObjectId(id)})
     return result.deleted_count > 0

@@ -120,6 +120,31 @@ async def create_project(
                 shutil.copyfileobj(image.file, f)
 
             saved_filenames.append(filename)
+    import random
+
+    # Generate a random integer between 1 and 10 (inclusive)
+    arrhes = random.randint(25, 99)
+
+    type_validation= 'without suggestion' or 'With suggestion'
+    if type_validation == 'With suggestion':
+        time = [
+                    {
+                    "date": datetime.now(),
+                    "time": "16:00 - 18:00"
+                    },
+                    {
+                    "date": datetime.now()+1,
+                    "time": "14:00 - 18:00"
+                    },
+                    {
+                    "date": datetime.now()+2,
+                    "time": "15:00 - 16:00"
+                    }
+                ]
+    else:
+        time = []
+
+
 
     # Prepare project data
     project_dict = {
@@ -130,12 +155,12 @@ async def create_project(
         "budget": budget,
         "status": status,
         "estimation":"",
-        "arrhes":0,
+        "arrhes":arrhes ,
         "date":None,
 
         "shop":"",
-        "type_validation":"",
-        "time":[],
+        "type_validation":type_validation ,
+        "time":time,
 
         "status_shop":"waiting for confirmation",
         "user_id": token["id"],  # Assuming token contains user ID
@@ -160,3 +185,10 @@ def get_all_projects( token: dict = Depends(token_required)):
 def get_project( id:str ,token: dict = Depends(token_required)):
     return get_project_by_id(id)
 
+
+@artistes_router.put("/projects/{id}")
+def update_project(id: str, edit_project: dict, token: dict = Depends(token_required)):
+    updated_project = update_project_by_id(id, edit_project)
+    if updated_project:
+        return {"message": "Project updated successfully", "project": updated_project}
+    raise HTTPException(status_code=404, detail="Project not found")
