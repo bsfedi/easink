@@ -10,6 +10,7 @@ from enum import Enum
 class Artiste(BaseModel):
     # id:str
     name: str
+    user_name :str
     shops: Optional[list]
     rate: Optional[str]
     description: Optional[str]

@@ -106,6 +106,7 @@ def artiste_helper(artiste) -> dict:
 
     return {
         "id": str(artiste["_id"]),
+        "user_name": artiste.get("user_name"),
         "name": artiste["name"],
         "shops": shops if shops else None,
         "tatouages": tatouages,
@@ -139,6 +140,7 @@ def artiste_helper_by_id(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
+        "user_name": artiste.get("user_name"),
         "shops": shops,
         "tatouages": tatouages,
         "rate": moyenne,
