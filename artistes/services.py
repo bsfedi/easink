@@ -116,6 +116,7 @@ def insert_avis_artiste(artiste_id: str, project_id:str,avis: dict):
 
 
 def artiste_helper(artiste) -> dict:
+    print(artiste)
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
     tatouages = get_tatouages_by_ids(artiste.get("tatouages", [])) if artiste.get("tatouages") else []
     formatted_availability = format_next_availability(artiste.get("next_availability"))
@@ -132,7 +133,7 @@ def artiste_helper(artiste) -> dict:
     return {
         "id": str(artiste["_id"]),
         "user_name": artiste.get("user_name"),
-        "name": artiste["name"],
+        "name": artiste.get("name"),
         "shops": shops if shops else None,
         "tatouages": tatouages,
         "rate": moyenne,
@@ -437,10 +438,10 @@ def update_project_by_id(id: str, data: dict):
         updated_artiste =  project_collection.update_one(
             {"_id": ObjectId(id)}, {"$set": data}
         )
-        if updated_artiste.modified_count > 0:
-            new_data =  project_collection.find_one({"_id": ObjectId(id)})
-            return artiste_helper(new_data)
-    return False
+
+        return get_project_by_id(id)
+    
+    
 
 def delete_artiste(id: str):
     result =  artiste_collection.delete_one({"_id": ObjectId(id)})

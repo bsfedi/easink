@@ -233,7 +233,7 @@ def create_avis(
 
     raise HTTPException(status_code=404, detail="Artiste not found or Avis creation failed")
 
-@artistes_router.put("/projects/{project_id}/couverture")
+@artistes_router.put("/project/{project_id}/couverture")
 async def update_project_couverture(project_id: str, couverture: UploadFile = File(...)):
     # Find project
     project = project_collection.find_one({"_id": ObjectId(project_id)})
