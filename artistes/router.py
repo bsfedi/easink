@@ -149,6 +149,7 @@ async def create_project(
     # Prepare project data
     project_dict = {
         "images": saved_filenames,
+        "couverture":saved_filenames[0] if saved_filenames else "",
         "description": description,
         "taille": taille,
         "emplacement": emplacement,
@@ -194,9 +195,10 @@ def update_project(id: str, edit_project: dict, token: dict = Depends(token_requ
     raise HTTPException(status_code=404, detail="Project not found")
 
 
-@artistes_router.post("/avis/{artiste_id}")
+@artistes_router.post("/avis/{artiste_id}/{project_id}")
 def create_avis(
     artiste_id: str,
+    project_id: str,
     avis: str = Form(...),  # stringified JSON input
     image: Optional[UploadFile] = File(None),
     token: dict = Depends(token_required)
@@ -224,9 +226,35 @@ def create_avis(
     else:
         avis_data['image'] = ""
 
-    created_avis = insert_avis_artiste(artiste_id, avis_data)
+    created_avis = insert_avis_artiste(artiste_id, project_id,avis_data)
 
     if created_avis:
         return {"message": "Avis created successfully", "avis": created_avis}
 
     raise HTTPException(status_code=404, detail="Artiste not found or Avis creation failed")
+
+@artistes_router.put("/projects/{project_id}/couverture")
+async def update_project_couverture(project_id: str, couverture: UploadFile = File(...)):
+    # Find project
+    project = project_collection.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Save the new image
+
+    filename = couverture.filename
+    filepath = os.path.join(UPLOAD_DIR, filename)
+
+    with open(filepath, "wb") as f:
+        shutil.copyfileobj(couverture.file, f)
+
+    # Update MongoDB document
+    project_collection.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$set": {"couverture": filename}}
+    )
+
+    return {
+        "message": "Couverture updated successfully",
+        "couverture_url": base_url + filename
+    }

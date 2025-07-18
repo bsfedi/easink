@@ -9,7 +9,7 @@ fav_artiste_collection = db.fav_artistes  # Adjust this to match your actual col
 shops_collection = db.shops
 tatouages_collection = db.tatouages  # Make sure this matches your real collection name
 
-
+base_url = "https://easink.onrender.com/uploads/"
 project_collection = db.projects
 
 
@@ -89,7 +89,7 @@ def format_next_availability(next_avail_raw):
         return "Non renseignée"
 
 
-def insert_avis_artiste(artiste_id: str, avis: dict):
+def insert_avis_artiste(artiste_id: str, project_id:str,avis: dict):
     try:
         # Convert avis to a dictionary if it's not already
         if isinstance(avis, BaseModel):
@@ -103,6 +103,10 @@ def insert_avis_artiste(artiste_id: str, avis: dict):
             {"_id": ObjectId(artiste_id)},
             {"$push": {"avis": avis}}
         )
+        project_collection.update_one(
+            {"_id": ObjectId(project_id)},  
+            {"$set": {"note": avis.get("avis", 0),"commentaire": avis.get("message", "")}})
+
         
         return result.modified_count > 0
     except Exception as e:
@@ -159,6 +163,7 @@ def artiste_helper_by_id(artiste) -> dict:
         moyenne = None  # ou 0 selon ton besoin
     for a in avis:
         a['user'] = get_user_by_id(a['user'])['prenom']
+        a['image'] = base_url+str(a['image'])
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],
@@ -187,7 +192,7 @@ def get_projects(user_id: str):
     projects = list(project_collection.find({"user_id": user_id}))
     serialized_projects = []
 
-    base_url = "https://easink.onrender.com/uploads/"
+    
 
     for p in projects:
         p["_id"] = str(p["_id"])
@@ -231,7 +236,7 @@ def get_project_by_id(id: str):
     project= project_collection.find_one({"_id": ObjectId(id)})
     print(project)
 
-    base_url = "https://easink.onrender.com/uploads/"
+
 
  
     project["_id"] = str(project["_id"])
@@ -240,6 +245,7 @@ def get_project_by_id(id: str):
 
         # Add full image URLs
     project["images"] = [base_url + img for img in project.get("images", [])]
+    project["couverture"] = base_url + project.get("couverture", "")
 
         # Fetch and attach artiste data
     if project["artiste_id"]:

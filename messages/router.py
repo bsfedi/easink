@@ -67,6 +67,7 @@ async def send_message(message: message, token: dict = Depends(token_required)):
     # Prepare conversation message entry
     conversation_message = {
         "_id": message_id,
+        
                     "sender": sender,
             "receiver": receiver,
         "message": content,
