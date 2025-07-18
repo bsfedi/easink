@@ -1,7 +1,7 @@
 from bson import ObjectId
 from database import db
 from artistes.models import *
-
+from user.service import get_user_by_id
 artiste_collection = db.artistes
 artiste_collection = db.artistes
 flashs_collection = db.flash_tatouages
@@ -89,6 +89,27 @@ def format_next_availability(next_avail_raw):
         return "Non renseignée"
 
 
+def insert_avis_artiste(artiste_id: str, avis: dict):
+    try:
+        # Convert avis to a dictionary if it's not already
+        if isinstance(avis, BaseModel):
+            avis = avis.dict()
+
+        # Add the current date to the avis
+        avis["date"] = datetime.now()
+
+        # Insert the avis into the artiste's avis list
+        result = artiste_collection.update_one(
+            {"_id": ObjectId(artiste_id)},
+            {"$push": {"avis": avis}}
+        )
+        
+        return result.modified_count > 0
+    except Exception as e:
+        print(f"Error inserting avis for artiste {artiste_id}: {e}")
+        return False
+
+
 
 def artiste_helper(artiste) -> dict:
     shops = get_shops_by_ids(artiste.get("shops", [])) if artiste.get("shops") else []
@@ -136,7 +157,8 @@ def artiste_helper_by_id(artiste) -> dict:
         moyenne = round(total_notes / len(avis), 2)
     else:
         moyenne = None  # ou 0 selon ton besoin
-
+    for a in avis:
+        a['user'] = get_user_by_id(a['user'])['prenom']
     return {
         "id": str(artiste["_id"]),
         "name": artiste["name"],

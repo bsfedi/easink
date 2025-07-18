@@ -192,3 +192,41 @@ def update_project(id: str, edit_project: dict, token: dict = Depends(token_requ
     if updated_project:
         return {"message": "Project updated successfully", "project": updated_project}
     raise HTTPException(status_code=404, detail="Project not found")
+
+
+@artistes_router.post("/avis/{artiste_id}")
+def create_avis(
+    artiste_id: str,
+    avis: str = Form(...),  # stringified JSON input
+    image: Optional[UploadFile] = File(None),
+    token: dict = Depends(token_required)
+):
+    try:
+        avis_data = json.loads(avis)  # parse avis JSON
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON for 'avis'")
+
+    avis_data['user'] = token['id']
+    avis_data['date'] = datetime.now().isoformat()  # Add current date
+
+    print(image)
+
+    # Optionally process the image if it was provided
+    if image:
+        # Example: read and save the image or store metadata
+        content = image.file.read()
+        avis_data['image'] = image.filename
+        filename = image.filename
+        filepath = os.path.join(UPLOAD_DIR, filename)
+            # If file already exists, you might want to handle conflict
+        with open(filepath, "wb") as f:
+            shutil.copyfileobj(image.file, f)
+    else:
+        avis_data['image'] = ""
+
+    created_avis = insert_avis_artiste(artiste_id, avis_data)
+
+    if created_avis:
+        return {"message": "Avis created successfully", "avis": created_avis}
+
+    raise HTTPException(status_code=404, detail="Artiste not found or Avis creation failed")
