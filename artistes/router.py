@@ -149,7 +149,7 @@ async def create_project(
     # Prepare project data
     project_dict = {
         "images": saved_filenames,
-        "couverture":saved_filenames[0] if saved_filenames else "",
+        "couverture":saved_filenames[0] if saved_filenames else "400x400.svg",
         "description": description,
         "taille": taille,
         "emplacement": emplacement,
