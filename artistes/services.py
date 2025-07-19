@@ -202,6 +202,7 @@ def get_projects(user_id: str):
 
         # Add full image URLs
         p["images"] = [base_url + img for img in p.get("images", [])]
+        p["couverture"] = base_url + p.get("couverture", "")
 
         # Fetch and attach artiste data
         if p["artiste_id"]:
