@@ -216,10 +216,15 @@ def create_avis(
     # Optionally process the image if it was provided
     if image:
         # Example: read and save the image or store metadata
-        content = image.file.read()
-        avis_data['image'] = image.filename
         filename = image.filename
-        filepath = os.path.join(UPLOAD_DIR, filename)
+        name, ext = os.path.splitext(filename)
+        date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        
+        new_filename = f"{name}_{date_str}{ext}"
+        avis_data['image'] = new_filename
+        filepath = os.path.join(UPLOAD_DIR, new_filename)
+
             # If file already exists, you might want to handle conflict
         with open(filepath, "wb") as f:
             shutil.copyfileobj(image.file, f)
